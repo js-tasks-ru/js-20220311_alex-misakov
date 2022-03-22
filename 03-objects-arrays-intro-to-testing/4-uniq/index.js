@@ -6,7 +6,7 @@
 export function uniq(arr) {
   if (arr === undefined) return [];
 
-  let result = [];
+  const result = [];
 
   for (const item of arr) {
     if (!result.includes(item)) {
