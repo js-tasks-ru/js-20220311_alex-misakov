@@ -8,7 +8,7 @@ export function uniq(arr) {
 
   let result = [];
 
-  for (let item of arr) {
+  for (const item of arr) {
     if (!result.includes(item)) {
       result.push(item);
     }
