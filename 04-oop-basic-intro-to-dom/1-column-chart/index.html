@@ -11,7 +11,6 @@
       <div id="orders" class="dashboard__chart_orders"></div>
       <div id="sales" class="dashboard__chart_sales"></div>
       <div id="customers" class="dashboard__chart_customers"></div>
-      <div id="dummy" class="dashboard__chart_dummy"></div>
     </div>
 
     <script type="module">
@@ -41,12 +40,13 @@
         value: 321
       });
 
-      const dummyChart = new ColumnChart();
 
       orders.append(ordersChart.element);
       sales.append(salesChart.element);
       customers.append(customersChart.element);
-      dummy.append(dummyChart.element);
+
+      setTimeout(() => ordersChart.update([100, 200, 300, 400, 500]), 1000);
+
 
     </script>
   </body>

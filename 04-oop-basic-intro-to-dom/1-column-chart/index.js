@@ -1,17 +1,54 @@
 export default class ColumnChart {
   constructor(obj = {}) {
-    let { data = [], label = '', value = 0, link = null, formatHeading = null, chartHeight = 50 }  = obj;
+    let { data = [], label = '', value = 0, link = null, formatHeading = (value) => value, chartHeight = 50 }  = obj;
+    this.formatHeading = formatHeading;
     this.data = data;
     this.label = label;
-    this.value = value;
+    this.value = this.formatHeading(value);
     this.link = link;
-    this.formatHeading = formatHeading;
     this.chartHeight = chartHeight;
 
     this.render();
   }
 
   getTemplate() {
+    return `
+          <div class="column-chart column-chart_loading" style="--chart-height: ${this.chartHeight}">
+            <div class="column-chart__title">
+              Total ${ this.label }
+              ${ this.getLink() }
+            </div>
+            <div class="column-chart__container">
+               <div data-element="header" class="column-chart__header">
+                 ${ this.value }
+               </div>
+              <div data-element="body" class="column-chart__chart">
+                ${ this.getColumnBody() }
+              </div>
+            </div>
+      </div>
+    `;
+  }
+
+  render() {
+    const chart = document.createElement('div');
+
+    chart.innerHTML = this.getTemplate();
+
+    this.element = chart.firstElementChild;
+
+    if (this.data.length) {
+      this.element.classList.remove("column-chart_loading");
+    }
+
+    this.refToColumnBody = this.element.querySelector('[data-element="body"]');
+  }
+
+  renderChart() {
+    this.refToColumnBody.innerHTML = this.getColumnBody();
+  }
+
+  getColumnBody() {
     const maxValue = Math.max(...this.data);
     const scale = this.chartHeight / maxValue;
 
@@ -21,65 +58,29 @@ export default class ColumnChart {
     }).join('');
   }
 
-  render() {
-    const chart = document.createElement('div');
-    chart.className = 'column-chart';
-    chart.setAttribute('style', '--chart-height: 50');
-
-    const chartTitle = document.createElement('div');
-    chartTitle.className = 'column-chart__title';
-    chartTitle.innerHTML = 'Total ' + this.label;
-
-    if (this.link) {
-      let a = document.createElement('a');
-      a.setAttribute('href', this.link);
-      a.className = 'column-chart__link';
-      a.innerHTML = 'View all';
-      chartTitle.append(a);
-    }
-
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'column-chart__container';
-
-    const chartHeader = document.createElement('div');
-    chartHeader.className = 'column-chart__header';
-    chartHeader.setAttribute('data-element', 'header');
-    chartHeader.innerHTML = this.formatHeading ? this.formatHeading(this.value) : String(this.value);
-
-    const chartChart = document.createElement('div');
-    chartChart.className = 'column-chart__chart';
-    chartChart.setAttribute('data-element', 'body');
-    chartChart.innerHTML = this.getTemplate();
-
-    chartContainer.append(chartHeader, chartChart);
-    chart.append(chartTitle, chartContainer);
-
-    if (!this.data || this.data.length === 0) {
-      const chartLoading = document.createElement('div');
-      chartLoading.className = 'column-chart column-chart_loading';
-      chartLoading.setAttribute('style', '--chart-height: 50');
-      chartLoading.append(chart);
-      this.element = chartLoading;
-    } else {
-      this.element = chart;
-    }
-  }
-
-  renderChart() {
-    let chartBody = document.querySelectorAll('[data-element="body"]');
-    chartBody.innerHTML = this.getTemplate();
+  getLink() {
+    return this.link
+      ? `<a class="column-chart__link" href="${this.link}">View all</a>`
+      : "";
   }
 
   update(newData) {
     this.data = newData;
-    this.renderChart();
+
+    if (this.data.length) {
+      this.element.classList.remove("column-chart_loading");
+      this.renderChart();
+    }
   }
 
   remove() {
-    this.element.remove();
+    if (this.element) {
+      this.element.remove();
+    }
   }
 
   destroy() {
     this.remove();
+    this.element = null;
   }
 }
