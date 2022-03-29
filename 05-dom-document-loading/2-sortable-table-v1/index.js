@@ -18,8 +18,10 @@ export default class SortableTable {
 
     container.append(table);
     this.element = container;
-    this.refToTableBody = table;
-    this.refToElements = this.createRefToElements();
+    this.subElements = {
+      header: table.firstElementChild,
+      body: table.lastElementChild,
+    };
   }
 
   getTableHeader() {
@@ -31,13 +33,6 @@ export default class SortableTable {
     let spanArrow = `<span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>`;
 
     for (let headerCell of this.headerConfig ) {
-      // headerRows += `<div class="sortable-table__cell" data-id="${headerCell.id}"
-      //                     data-sortable="${headerCell.sortable}"
-      //                     data-order="asc">
-      //                     <span>${headerCell.title}</span>
-      //                     ${headerCell.sortable ? spanArrow : ""}
-      //                </div>`;
-
       headerRows += `<div class="sortable-table__cell" data-id="${headerCell.id}"
                           data-sortable="${headerCell.sortable}">
                           <span>${headerCell.title}</span>
@@ -73,55 +68,29 @@ export default class SortableTable {
     return table;
   }
 
-  createRefToElements() {
-    let refToRows = this.element.querySelectorAll(`[class="sortable-table__row"]`);
-
-    let refToElements = [];
-
-    for (let ref of refToRows) {
-      let currentRef = {};
-      let refToCells = Array.from(ref.querySelectorAll(`[class="sortable-table__cell"]`));
-      currentRef.row = ref;
-      currentRef.cells = {};
-
-      let i = 0;
-      for (let field of this.headerConfig) {
-        currentRef.cells[field.id] = refToCells[i++];
-      }
-
-      refToElements.push(currentRef);
-    }
-
-    return refToElements;
-  }
-
   sort(field, order) {
-    let col = this.headerConfig.find((item) => item.id === field);
+    let index = this.headerConfig.findIndex(obj => obj.id === field);
 
-    if (!col.sortable) {
+    if (!this.headerConfig[index].sortable) {
       return;
     }
 
     const directions = {
-      asc: 1,
-      desc: -1
+        asc: 1,
+        desc: -1
     }
+
     const direction = directions[order];
 
-    this.refToElements.sort((rowA, rowB) => {
-      if (col.sortType === 'string') {
-        return direction * rowA.cells[field].innerHTML.localeCompare(rowB.cells[field].innerHTML, ['ru', 'en'], {caseFirst: 'upper'});
+    let sortedArray = Array.from(this.subElements.body.children).sort((a, b) => {
+      if (this.headerConfig[index].sortType === 'string') {
+        return direction * a.children[index].innerHTML.localeCompare(b.children[index].innerHTML,
+            ['ru', 'en'], {caseFirst: 'upper'});
       }
-      return direction * (rowA.cells[field].innerHTML - rowB.cells[field].innerHTML);
+      return direction * (a.children[index].innerHTML - b.children[index].innerHTML);
     });
 
-    let sortedArray = [];
-
-    for (let elem of this.refToElements) {
-      sortedArray.push(elem.row);
-    }
-
-    this.refToTableBody.append(...sortedArray);
+    this.subElements.body.append(...sortedArray);
   }
 
   remove() {
