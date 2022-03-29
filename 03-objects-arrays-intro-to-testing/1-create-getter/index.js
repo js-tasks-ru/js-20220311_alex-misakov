@@ -11,10 +11,12 @@ export function createGetter(path) {
       return;
     }
 
+    let result = obj;
+
     for (const field of fields) {
-      obj = obj[field];
+      result = result[field];
     }
 
-    return obj;
+    return result;
   };
 }

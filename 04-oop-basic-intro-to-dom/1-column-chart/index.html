@@ -40,9 +40,13 @@
         value: 321
       });
 
+
       orders.append(ordersChart.element);
       sales.append(salesChart.element);
       customers.append(customersChart.element);
+
+      setTimeout(() => ordersChart.update([100, 200, 300, 400, 500]), 3000);
+
     </script>
   </body>
 </html>
