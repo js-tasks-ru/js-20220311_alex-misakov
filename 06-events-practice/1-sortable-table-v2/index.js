@@ -1,4 +1,10 @@
 export default class SortableTable {
+  _handler = event => {
+    let order = event.currentTarget.dataset.order === 'desc' ? 'asc' : 'desc';
+
+    this.sort(event.currentTarget.dataset.id, order);
+  };
+
   constructor(headersConfig, {
     data = [],
     sorted = {},
@@ -11,7 +17,7 @@ export default class SortableTable {
 
     this.render();
     this.sort(this.sorted.id, this.sorted.order);
-    this.createSortHandlers();
+    this.addEventListeners();
   }
 
   render() {
@@ -32,17 +38,18 @@ export default class SortableTable {
     };
   }
 
-  createSortHandlers() {
-
-    let handler = event => {
-      let order = event.currentTarget.dataset.order === 'desc' ? 'asc' : 'desc';
-
-      this.sort(event.currentTarget.dataset.id, order);
-    }
-
+  addEventListeners() {
     for (let element of this.subElements.header.children) {
       if (element.dataset.sortable) {
-        element.addEventListener('pointerdown', handler);
+        element.addEventListener('pointerdown', this._handler);
+      }
+    }
+  }
+
+  removeEventListeners() {
+    for (let element of this.subElements.header.children) {
+      if (element.dataset.sortable) {
+        element.removeEventListener('pointerdown', this._handler);
       }
     }
   }
@@ -131,6 +138,7 @@ export default class SortableTable {
   }
 
   destroy() {
+    this.removeEventListeners();
     this.remove();
     this.element = null;
   }
