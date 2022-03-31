@@ -25,22 +25,15 @@ export default class SortableTable {
   }
 
   getTableHeader() {
-    let headerBody = `<div data-element="header" class="sortable-table__header sortable-table__row">`;
 
-    let spanArrow = `<span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>`;
-
-    for (let headerCell of this.headerConfig ) {
-      headerBody +=
-        `<div class="sortable-table__cell" data-id="${headerCell.id}" data-sortable="${headerCell.sortable}" data-order="">
-          <span>
-              ${headerCell.title}
-              <span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>
-          </span>
-        </div>`;
-    }
-    headerBody += `</div>`;
-
-    return headerBody;
+    return `<div data-element="header" class="sortable-table__header sortable-table__row">` +
+      this.headerConfig.map(column => {
+        return `<div class="sortable-table__cell" data-id="${column.id}" data-sortable="${column.sortable}" data-order="">
+                   <span>${column.title}
+                     <span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>
+                   </span>
+                </div>`;
+      }).join('') + `</div>`;
   }
 
   getTableBody(inputData) {
@@ -56,7 +49,7 @@ export default class SortableTable {
             column.template(item[column.id]) :
             `<div class="sortable-table__cell">${item[column.id]}</div>`;
         }).join('');
-    }).join('');
+    }).join('') + `</a>`;
   }
 
   sort(field, order) {
