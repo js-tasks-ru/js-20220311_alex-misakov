@@ -44,31 +44,19 @@ export default class SortableTable {
   }
 
   getTableBody(inputData) {
-    let tableBody = `<div data-element="body" class="sortable-table__body">`;
-
-    tableBody += this.getTableRows(inputData);
-    tableBody += `</div>`;
-
-    return tableBody;
+    return `<div data-element="body" class="sortable-table__body">` + this.getTableRows(inputData);
   }
 
   getTableRows(inputData) {
-    let tableRows = ``;
 
-    for (let tableCell of inputData) {
-      tableRows += `<a href="/products/${tableCell.id}" class="sortable-table__row">`;
-
-      for (let field of this.headerConfig) {
-        if (field.id === 'images') {
-          tableRows += field.template(tableCell[field.id]);
-        } else {
-          tableRows += `<div class="sortable-table__cell">${tableCell[field.id]}</div>`;
-        }
-      }
-      tableRows += `</a>`;
-    }
-
-    return tableRows;
+    return inputData.map(item => {
+      return `<a href="/products/${item.id}" class="sortable-table__row">` +
+        this.headerConfig.map(column => {
+          return column.id === 'images' ?
+            column.template(item[column.id]) :
+            `<div class="sortable-table__cell">${item[column.id]}</div>`;
+        }).join('');
+    }).join('');
   }
 
   sort(field, order) {
