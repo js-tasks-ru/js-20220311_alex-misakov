@@ -25,50 +25,31 @@ export default class SortableTable {
   }
 
   getTableHeader() {
-    let headerBody = `<div data-element="header" class="sortable-table__header sortable-table__row">`;
 
-    let spanArrow = `<span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>`;
-
-    for (let headerCell of this.headerConfig ) {
-      headerBody +=
-        `<div class="sortable-table__cell" data-id="${headerCell.id}" data-sortable="${headerCell.sortable}" data-order="">
-          <span>
-              ${headerCell.title}
-              <span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>
-          </span>
-        </div>`;
-    }
-    headerBody += `</div>`;
-
-    return headerBody;
+    return `<div data-element="header" class="sortable-table__header sortable-table__row">` +
+      this.headerConfig.map(column => {
+        return `<div class="sortable-table__cell" data-id="${column.id}" data-sortable="${column.sortable}" data-order="">
+                   <span>${column.title}
+                     <span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>
+                   </span>
+                </div>`;
+      }).join('') + `</div>`;
   }
 
   getTableBody(inputData) {
-    let tableBody = `<div data-element="body" class="sortable-table__body">`;
-
-    tableBody += this.getTableRows(inputData);
-    tableBody += `</div>`;
-
-    return tableBody;
+    return `<div data-element="body" class="sortable-table__body">` + this.getTableRows(inputData);
   }
 
   getTableRows(inputData) {
-    let tableRows = ``;
 
-    for (let tableCell of inputData) {
-      tableRows += `<a href="/products/${tableCell.id}" class="sortable-table__row">`;
-
-      for (let field of this.headerConfig) {
-        if (field.id === 'images') {
-          tableRows += field.template(tableCell[field.id]);
-        } else {
-          tableRows += `<div class="sortable-table__cell">${tableCell[field.id]}</div>`;
-        }
-      }
-      tableRows += `</a>`;
-    }
-
-    return tableRows;
+    return inputData.map(item => {
+      return `<a href="/products/${item.id}" class="sortable-table__row">` +
+        this.headerConfig.map(column => {
+          return column.id === 'images' ?
+            column.template(item[column.id]) :
+            `<div class="sortable-table__cell">${item[column.id]}</div>`;
+        }).join('');
+    }).join('') + `</a>`;
   }
 
   sort(field, order) {
