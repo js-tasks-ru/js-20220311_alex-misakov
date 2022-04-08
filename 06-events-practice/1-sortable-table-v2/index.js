@@ -1,8 +1,12 @@
 export default class SortableTable {
   _handler = event => {
-    let order = event.currentTarget.dataset.order === 'desc' ? 'asc' : 'desc';
+    let field = event.target.closest('[class="sortable-table__cell"]');
 
-    this.sort(event.currentTarget.dataset.id, order);
+    if (!field || !field.dataset.sortable) return;
+
+    let order = field.dataset.order === 'desc' ? 'asc' : 'desc';
+
+    this.sort(field.dataset.id, order);
   };
 
   constructor(headersConfig, {
@@ -39,19 +43,11 @@ export default class SortableTable {
   }
 
   addEventListeners() {
-    for (let element of this.subElements.header.children) {
-      if (element.dataset.sortable) {
-        element.addEventListener('pointerdown', this._handler);
-      }
-    }
+    this.subElements.header.addEventListener('pointerdown', this._handler);
   }
 
   removeEventListeners() {
-    for (let element of this.subElements.header.children) {
-      if (element.dataset.sortable) {
-        element.removeEventListener('pointerdown', this._handler);
-      }
-    }
+    this.subElements.header.removeEventListener('pointerdown', this._handler);
   }
 
   getTableHeader() {
@@ -65,19 +61,23 @@ export default class SortableTable {
   }
 
   getTableBody(inputData) {
-    return `<div data-element="body" class="sortable-table__body">` + this.getTableRows(inputData);
+    return `<div data-element="body" class="sortable-table__body">${this.getTableRows(inputData)}`;
   }
 
   getTableRows(inputData) {
 
     return inputData.map(item => {
-      return `<a href="/products/${item.id}" class="sortable-table__row">` +
-        this.headersConfig.map(column => {
-          return column.id === 'images' ?
-            column.template(item[column.id]) :
-            `<div class="sortable-table__cell">${item[column.id]}</div>`;
-        }).join('');
+      return `<a href="/products/${item.id}" class="sortable-table__row">${this.getTableRow(item)}`;
     }).join('') + `</a>`;
+  }
+
+  getTableRow(item) {
+
+    return this.headersConfig.map(column => {
+      return column.id === 'images' ?
+        column.template(item[column.id]) :
+        `<div class="sortable-table__cell">${item[column.id]}</div>`;
+    }).join('');
   }
 
   sort(field, order='asc') {
@@ -114,6 +114,9 @@ export default class SortableTable {
       if (this.headersConfig[index].sortType === 'string') {
         return direction * a[field].localeCompare(b[field], ['ru', 'en'], {caseFirst: 'upper'});
       }
+      // if (this.headersConfig[index].sortType === 'any_other_sortType') {
+      //   // TO DO - implement sorting by 'any_other_sortType';
+      // }
       return direction * (a[field] - b[field]);
     });
   }
