@@ -85,13 +85,17 @@ export default class ColumnChart {
       : "";
   }
 
-  update(dateFrom = this.range.from, dateTo = this.range.to) {
+  async update(dateFrom = this.range.from, dateTo = this.range.to) {
 
     let url = new URL(this.url, BACKEND_URL);
     url.searchParams.append('from', dateFrom);
     url.searchParams.append('to', dateTo);
 
-    fetchJson(url).then(json => this.renderChart(json));
+    // fetchJson(url).then(json => this.renderChart(json)); // <-- почему так не проходит тесты?
+    let json = await fetchJson(url);
+    this.renderChart(json);
+
+    return json;
   }
 
   remove() {
