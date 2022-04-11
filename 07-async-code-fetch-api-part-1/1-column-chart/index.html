@@ -24,7 +24,7 @@
       const ordersChart = new ColumnChart({
         url: 'api/dashboard/orders',
         range: {
-          from: new Date('2020-04-06'),
+          from: new Date('2020-03-06'),
           to: new Date('2020-05-06'),
         },
         label: 'orders',
@@ -34,12 +34,14 @@
       loadOrders.addEventListener('click', () => {
         // const start = start.value;
         ordersChart.update(new Date(start.value), new Date(end.value))
+        salesChart.update(new Date(start.value), new Date(end.value))
+        customersChart.update(new Date(start.value), new Date(end.value))
       });
 
       const salesChart = new ColumnChart({
         url: 'api/dashboard/sales',
         range: {
-          from: new Date('2020-04-06'),
+          from: new Date('2020-03-06'),
           to: new Date('2020-05-06'),
         },
         label: 'sales',
@@ -49,7 +51,7 @@
       const customersChart = new ColumnChart({
         url: 'api/dashboard/customers',
         range: {
-          from: new Date('2020-04-06'),
+          from: new Date('2020-03-06'),
           to: new Date('2020-05-06'),
         },
         label: 'customers',
