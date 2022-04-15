@@ -198,5 +198,4 @@ export default class SortableTable {
     this.removeEventListeners();
     this.remove();
     this.element = null;
-  }
 }
