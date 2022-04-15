@@ -5,7 +5,16 @@ const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ProductForm {
-
+  // formControlValues = {
+  //   title: '',
+  //   description: '',
+  //   subcategory: '',
+  //   price: 0,
+  //   discount: 0,
+  //   number: 0,
+  //   status: 0,
+  //   images: [],
+  // }
   constructor (productId) {
     this.productId = productId;
     this.urlPoducts = new URL('api/rest/products', BACKEND_URL);
