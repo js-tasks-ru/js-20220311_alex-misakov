@@ -44,7 +44,7 @@ export default class ProductForm {
 
       const imageObj = {url: response.data.link, source: fileImage.name};
       this.formControlValues.images.push(imageObj);
-      this.imageListContainer.insertAdjacentHTML('beforeend', this.getImageListItem(imageObj));
+      this.subElements.imageListContainer.insertAdjacentHTML('beforeend', this.getImageListItem(imageObj));
 
       fileInput.disabled = false;
     }
@@ -53,17 +53,7 @@ export default class ProductForm {
   saveOnClick = async (event) => {
     event.preventDefault();
 
-    const formData = this.getFormData();
-
-    const response = await fetchJson(this.urlProducts, {
-      method: this.productId ? 'PATCH' : 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData),
-    })
-
-    this.dispatchEvent(response.id);
+    await this.save();
   }
 
   constructor (productId) {
@@ -73,7 +63,7 @@ export default class ProductForm {
 
     this.getTemplate();
     this.getControlElements();
-    this.imageListContainer = this.element.querySelector(`[data-element="imageListContainer"]`);
+    this.getSubElements();
     this.addEventListeners();
   }
 
@@ -146,6 +136,14 @@ export default class ProductForm {
       }, {});
   }
 
+  getSubElements() {
+    this.subElements = Array.from(this.element.querySelectorAll(`[data-element]`))
+      .reduce((previous, current) => {
+        previous[current.dataset.element] = current;
+        return previous;
+      }, {});
+  }
+
   addEventListeners() {
     this.element.querySelector(`[name="uploadImage"]`).addEventListener(`click`, this.uploadImage);
     this.element.querySelector(`[name="save"]`).addEventListener(`click`, this.saveOnClick);
@@ -180,7 +178,7 @@ export default class ProductForm {
 
     for (const key of Object.keys(this.formControlValues)) {
       if (key === 'images') {
-        this.imageListContainer.innerHTML = this.getImageList(data[0].images);
+        this.subElements.imageListContainer.innerHTML = this.getImageList(data[0].images);
       } else {
         this.controlElements[key].value = data[0][key];
       }
@@ -246,6 +244,20 @@ export default class ProductForm {
     formData['images'] = this.formControlValues.images;
 
     return formData;
+  }
+
+  async save() {
+    const formData = this.getFormData();
+
+    const response = await fetchJson(this.urlProducts, {
+      method: this.productId ? 'PATCH' : 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData),
+    })
+
+    this.dispatchEvent(response.id);
   }
 
   remove() {
