@@ -6,7 +6,7 @@ export default class SortableTable {
    CHUNK_LENGTH = 30;
 
   _sortOnClick = event => {
-    let field = event.target.closest('[data-sortable="true"]');
+    const field = event.target.closest('[data-sortable="true"]');
 
     if (!field) return;
 
@@ -19,13 +19,13 @@ export default class SortableTable {
     this.addArrowElement(field);
   }
 
-  _updateOnScroll = event => {
+  _updateOnScroll = async event => {
     const windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
 
     if (windowRelativeBottom <= document.documentElement.clientHeight && !this.loading) {
       this.loading = true;
 
-      this.update();
+      await this.update();
 
       this.loading = false;
     }
@@ -132,8 +132,8 @@ export default class SortableTable {
   }
 
   sortOnClient(field, order) {
-    let index = this.headersConfig.findIndex(obj => obj.id === field);
-    let sortedArray = this.sortData(field, index, order);
+    const index = this.headersConfig.findIndex(obj => obj.id === field);
+    const sortedArray = this.sortData(field, index, order);
 
     this.subElements.body.innerHTML = this.getTableBody(sortedArray);
   }
@@ -155,7 +155,7 @@ export default class SortableTable {
   }
 
   async sortOnServer(field, order) {
-    let newData = await this.loadData();
+    const newData = await this.loadData();
     this.subElements.body.innerHTML = this.getTableBody(newData);
   }
 
@@ -171,14 +171,14 @@ export default class SortableTable {
     return await fetchJson(this.url);
   }
 
-  update() {
+  async update() {
     this.sorted.begin = this.sorted.end;
     this.sorted.end += this.CHUNK_LENGTH;
 
     this.element.classList.add(`sortable-table_loading`);
 
-    this.loadData()
-      .then(newData => this.subElements.body.insertAdjacentHTML('beforeend', this.getTableBody(newData)));
+    const newData = await this.loadData();
+    this.subElements.body.insertAdjacentHTML('beforeend', this.getTableBody(newData));
 
     this.element.classList.remove(`sortable-table_loading`);
   }

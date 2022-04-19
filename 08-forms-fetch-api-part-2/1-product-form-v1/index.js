@@ -25,7 +25,7 @@ export default class ProductForm {
 
     fileInput.onchange = async () => {
 
-      let [ fileImage ] = fileInput.files;
+      const [ fileImage ] = fileInput.files;
       if (!fileImage) return;
 
       const formData = new FormData();
@@ -68,7 +68,7 @@ export default class ProductForm {
   }
 
   async render () {
-    await Promise.all([this.getProductData(), this.getCategoriesList()]);
+    await Promise.all([this.getCategoriesList(), this.getProductData()]);
 
     return this.element;
   }
@@ -137,7 +137,7 @@ export default class ProductForm {
   }
 
   getSubElements() {
-    this.subElements = Array.from(this.element.querySelectorAll(`[data-element]`))
+    this.subElements = [...this.element.querySelectorAll(`[data-element]`)]
       .reduce((previous, current) => {
         previous[current.dataset.element] = current;
         return previous;
