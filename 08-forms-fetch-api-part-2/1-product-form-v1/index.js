@@ -62,7 +62,7 @@ export default class ProductForm {
       },
       body: JSON.stringify(formData),
     })
-    console.log(response);
+
     this.dispatchEvent(response.id);
   }
 
