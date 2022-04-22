@@ -7,16 +7,8 @@ const BACKEND_URL = 'https://course-js.javascript.ru/';
 
 export default class Page {
 
-  _updateComponents = async (event) => {
-    for (const key of Object.keys(this.components)) {
-      if (key === 'rangePicker') continue;
-
-      await this.components[key].update(event.detail);
-    }
-  }
-
   render() {
-    let wrapper = document.createElement('div');
+    const wrapper = document.createElement('div');
 
     wrapper.innerHTML = this.getTemplate();
     this.element = wrapper.firstElementChild;
@@ -45,10 +37,10 @@ export default class Page {
   }
 
   getSubElements() {
-    let elements = this.element.querySelectorAll(`[data-element]`);
-    let result = {};
+    const elements = this.element.querySelectorAll(`[data-element]`);
+    const result = {};
 
-    for (let element of elements) {
+    for (const element of elements) {
       result[element.dataset.element] = element;
     }
 
@@ -77,12 +69,7 @@ export default class Page {
       url: 'api/dashboard/sales',
       range: range,
       label: 'sales',
-      formatHeading: data => {
-        return "$" + data.toString().split('').reverse().map((digit, index) => {
-          return (index % 3 === 0 && index !== 0) ? `${digit},` : digit;
-        }).reverse().join('');
-      },
-    });
+      formatHeading: data => data.toLocaleString(['en'], { style: 'currency', currency: 'USD', minimumFractionDigits: 0}),    });
 
     this.components.customersChart = new ColumnChart({
       url: 'api/dashboard/customers',
@@ -107,15 +94,23 @@ export default class Page {
     }
   }
 
+  updateComponents = async (event) => {
+    for (const component of Object.values(this.components)) {
+      if (component.update) {
+        component.update(event.detail);
+      }
+    }
+  }
+
   addEventListeners() {
-    this.components.rangePicker.element.addEventListener(`date-select`, this._updateComponents);
+    this.components.rangePicker.element.addEventListener(`date-select`, this.updateComponents);
 
     const sideBarToggler = document.querySelector(`.sidebar__toggler`);
     sideBarToggler.onclick = () => document.body.classList.toggle('is-collapsed-sidebar');
   }
 
   removeEventListeners() {
-    this.components.rangePicker.element.removeEventListener(`date-select`, this._updateComponents);
+    this.components.rangePicker.element.removeEventListener(`date-select`, this.updateComponents);
   }
 
   remove() {
