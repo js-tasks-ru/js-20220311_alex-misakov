@@ -32,7 +32,7 @@ export default class Page {
                 <div data-element="customersChart" class="dashboard__chart_customers"></div>
               </div>
               <h3 class="block-title">Лидеры продаж</h3>
-              <div data-element="salesLeaders"></div>
+              <div data-element="sortableTable"></div>
             </div>`;
   }
 
@@ -77,7 +77,7 @@ export default class Page {
       label: 'customers',
     });
 
-    this.components.salesLeaders = new SortableTable(header, {
+    this.components.sortableTable = new SortableTable(header, {
       url: 'api/dashboard/bestsellers',
       isSortLocally: true,
       sorted: {
@@ -105,8 +105,8 @@ export default class Page {
   addEventListeners() {
     this.components.rangePicker.element.addEventListener(`date-select`, this.updateComponents);
 
-    const sideBarToggler = document.querySelector(`.sidebar__toggler`);
-    sideBarToggler.onclick = () => document.body.classList.toggle('is-collapsed-sidebar');
+    // const sideBarToggler = document.querySelector(`.sidebar__toggler`);
+    // sideBarToggler.onclick = () => document.body.classList.toggle('is-collapsed-sidebar');
   }
 
   removeEventListeners() {
@@ -114,16 +114,17 @@ export default class Page {
   }
 
   remove() {
-    for (const key of Object.keys(this.components)) {
-      this.components[key].remove();
-    }
     this.removeEventListeners();
     this.element.remove();
   }
 
   destroy() {
     this.remove();
-    this.components = {};
+    this.subElements = {};
     this.element = null;
+
+    for (const component of Object.values(this.components)) {
+      component.destroy();
+    }
   }
 }
