@@ -50,6 +50,20 @@ export default class ProductForm {
     }
   }
 
+  deleteImage = (event) => {
+    const btn = event.target.closest(`[name="deleteImage"]`);
+    if (!btn) return;
+
+    const li = btn.closest(`.products-edit__imagelist-item`);
+    if (!li) return;
+
+    let index = this.formControlValues.images.findIndex( imageObj => imageObj.url === li.firstElementChild.value );
+    if (index === -1) return;
+
+    this.formControlValues.images.splice(index, 1);
+    li.remove();
+  }
+
   saveOnClick = async (event) => {
     event.preventDefault();
 
@@ -147,11 +161,13 @@ export default class ProductForm {
   addEventListeners() {
     this.element.querySelector(`[name="uploadImage"]`).addEventListener(`click`, this.uploadImage);
     this.element.querySelector(`[name="save"]`).addEventListener(`click`, this.saveOnClick);
+    this.subElements.imageListContainer.addEventListener(`click`, this.deleteImage);
   }
 
   removeEventListeners() {
     this.element.querySelector(`[name="uploadImage"]`).removeEventListener(`click`, this.uploadImage);
     this.element.querySelector(`[name="save"]`).removeEventListener(`click`, this.saveOnClick);
+    this.subElements.imageListContainer.removeEventListener(`click`, this.deleteImage);
   }
 
   dispatchEvent(id) {
@@ -178,6 +194,7 @@ export default class ProductForm {
 
     for (const key of Object.keys(this.formControlValues)) {
       if (key === 'images') {
+        this.formControlValues.images = data[0].images;
         this.subElements.imageListContainer.innerHTML = this.getImageList(data[0].images);
       } else {
         this.controlElements[key].value = data[0][key];
@@ -224,7 +241,7 @@ export default class ProductForm {
           <img class="sortable-table__cell-img" alt="Image" src="${item.url}">
           <span>${item.source}</span>
         </span>
-        <button type="button">
+        <button type="button" name="deleteImage">
           <img src="icon-trash.svg" data-delete-handle="" alt="delete">
         </button></li>`;
   }
