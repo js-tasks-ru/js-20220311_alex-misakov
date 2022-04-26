@@ -4,16 +4,16 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ColumnChart {
   constructor(
-        { url = ''
-        , range = {from: new Date(), to: new Date() - 1}
-        , label = ''
-        , value = 0
-        , link = null
-        , formatHeading = (value) => value
-        , chartHeight = 50
-        } = {}) {
+    { url = ''
+      , range = {from: new Date(), to: new Date() - 1}
+      , label = ''
+      , value = 0
+      , link = null
+      , formatHeading = (value) => value
+      , chartHeight = 50
+    } = {}) {
     this.formatHeading = formatHeading;
-    this.url = url;
+    this.url = new URL(url, BACKEND_URL);
     this.range = range;
     this.data = [];
     this.label = label;
@@ -85,15 +85,20 @@ export default class ColumnChart {
       : "";
   }
 
-  async update(dateFrom = this.range.from, dateTo = this.range.to) {
+  async update(newRange = this.range) {
 
-    let url = new URL(this.url, BACKEND_URL);
-    url.searchParams.append('from', dateFrom);
-    url.searchParams.append('to', dateTo);
+    this.range.from = newRange.from;
+    this.range.to = newRange.to;
 
-    // fetchJson(url).then(json => this.renderChart(json)); // <-- почему так не проходит тесты?
-    let json = await fetchJson(url);
+    this.url.searchParams.set('from', this.range.from);
+    this.url.searchParams.set('to', this.range.to);
+
+    this.element.classList.add("column-chart_loading");
+
+    let json = await fetchJson(this.url);
     this.renderChart(json);
+
+    this.element.classList.remove("column-chart_loading");
 
     return json;
   }
@@ -109,5 +114,3 @@ export default class ColumnChart {
     this.element = null;
   }
 }
-
-

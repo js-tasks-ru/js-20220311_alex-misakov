@@ -25,7 +25,7 @@ export default class ProductForm {
 
     fileInput.onchange = async () => {
 
-      let [ fileImage ] = fileInput.files;
+      const [ fileImage ] = fileInput.files;
       if (!fileImage) return;
 
       const formData = new FormData();
@@ -50,6 +50,20 @@ export default class ProductForm {
     }
   }
 
+  deleteImage = (event) => {
+    const btn = event.target.closest(`[name="deleteImage"]`);
+    if (!btn) return;
+
+    const li = btn.closest(`.products-edit__imagelist-item`);
+    if (!li) return;
+
+    let index = this.formControlValues.images.findIndex( imageObj => imageObj.url === li.firstElementChild.value );
+    if (index === -1) return;
+
+    this.formControlValues.images.splice(index, 1);
+    li.remove();
+  }
+
   saveOnClick = async (event) => {
     event.preventDefault();
 
@@ -68,7 +82,7 @@ export default class ProductForm {
   }
 
   async render () {
-    await Promise.all([this.getProductData(), this.getCategoriesList()]);
+    await Promise.all([this.getCategoriesList(), this.getProductData()]);
 
     return this.element;
   }
@@ -80,12 +94,12 @@ export default class ProductForm {
       <div class="form-group form-group__half_left">
         <fieldset>
           <label class="form-label">Название товара</label>
-          <input required="" type="text" name="title" class="form-control" placeholder="Название товара">
+          <input required="" type="text" name="title" id="title" class="form-control" placeholder="Название товара">
         </fieldset>
       </div>
       <div class="form-group form-group__wide">
         <label class="form-label">Описание</label>
-        <textarea required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара"></textarea>
+        <textarea required="" class="form-control" name="description" id="description" data-element="productDescription" placeholder="Описание товара"></textarea>
       </div>
       <div class="form-group form-group__wide" data-element="sortable-list-container">
         <label class="form-label">Фото</label>
@@ -94,26 +108,26 @@ export default class ProductForm {
       </div>
       <div class="form-group form-group__half_left">
         <label class="form-label">Категория</label>
-        <select class="form-control" name="subcategory">
+        <select class="form-control" name="subcategory" id="subcategory">
         </select>
       </div>
       <div class="form-group form-group__half_left form-group__two-col">
         <fieldset>
           <label class="form-label">Цена ($)</label>
-          <input required="" type="number" name="price" class="form-control" placeholder="100">
+          <input required="" type="number" name="price" id="price" class="form-control" placeholder="100">
         </fieldset>
         <fieldset>
           <label class="form-label">Скидка ($)</label>
-          <input required="" type="number" name="discount" class="form-control" placeholder="0">
+          <input required="" type="number" name="discount" id="discount" class="form-control" placeholder="0">
         </fieldset>
       </div>
       <div class="form-group form-group__part-half">
         <label class="form-label">Количество</label>
-        <input required="" type="number" class="form-control" name="quantity" placeholder="1">
+        <input required="" type="number" class="form-control" name="quantity" id="quantity" placeholder="1">
       </div>
       <div class="form-group form-group__part-half">
         <label class="form-label">Статус</label>
-        <select class="form-control" name="status">
+        <select class="form-control" name="status" id="status">
           <option value="1">Активен</option>
           <option value="0">Неактивен</option>
         </select>
@@ -137,7 +151,7 @@ export default class ProductForm {
   }
 
   getSubElements() {
-    this.subElements = Array.from(this.element.querySelectorAll(`[data-element]`))
+    this.subElements = [...this.element.querySelectorAll(`[data-element]`)]
       .reduce((previous, current) => {
         previous[current.dataset.element] = current;
         return previous;
@@ -147,11 +161,13 @@ export default class ProductForm {
   addEventListeners() {
     this.element.querySelector(`[name="uploadImage"]`).addEventListener(`click`, this.uploadImage);
     this.element.querySelector(`[name="save"]`).addEventListener(`click`, this.saveOnClick);
+    this.subElements.imageListContainer.addEventListener(`click`, this.deleteImage);
   }
 
   removeEventListeners() {
     this.element.querySelector(`[name="uploadImage"]`).removeEventListener(`click`, this.uploadImage);
     this.element.querySelector(`[name="save"]`).removeEventListener(`click`, this.saveOnClick);
+    this.subElements.imageListContainer.removeEventListener(`click`, this.deleteImage);
   }
 
   dispatchEvent(id) {
@@ -178,6 +194,7 @@ export default class ProductForm {
 
     for (const key of Object.keys(this.formControlValues)) {
       if (key === 'images') {
+        this.formControlValues.images = data[0].images;
         this.subElements.imageListContainer.innerHTML = this.getImageList(data[0].images);
       } else {
         this.controlElements[key].value = data[0][key];
@@ -224,7 +241,7 @@ export default class ProductForm {
           <img class="sortable-table__cell-img" alt="Image" src="${item.url}">
           <span>${item.source}</span>
         </span>
-        <button type="button">
+        <button type="button" name="deleteImage">
           <img src="icon-trash.svg" data-delete-handle="" alt="delete">
         </button></li>`;
   }
